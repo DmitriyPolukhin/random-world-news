@@ -7,7 +7,7 @@
    CSS Variables & Theme
    ============================================ */
 :root {
-    /* Colors */
+    /* Colors - DARK THEME ONLY */
     --bg-primary: #0a0a0f;
     --bg-secondary: #12121a;
     --bg-glass: rgba(255, 255, 255, 0.06);
@@ -18,12 +18,15 @@
     --text-secondary: rgba(255, 255, 255, 0.75);
     --text-muted: rgba(255, 255, 255, 0.5);
 
-    --accent-primary: #6366f1;
-    --accent-secondary: #8b5cf6;
-    --accent-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
+    /* Dark gradient instead of purple */
+    --accent-primary: #3a3a4a;
+    --accent-secondary: #2a2a35;
+    --accent-gradient: linear-gradient(135deg, #4a4a5a 0%, #3a3a4a 50%, #2a2a35 100%);
+    --btn-gradient: linear-gradient(135deg, #3d3d4d 0%, #2d2d3d 100%);
+    --btn-gradient-hover: linear-gradient(135deg, #4d4d5d 0%, #3d3d4d 100%);
 
     --border-glass: rgba(255, 255, 255, 0.12);
-    --border-glow: rgba(139, 92, 246, 0.4);
+    --border-glow: rgba(255, 255, 255, 0.2);
 
     /* Morphic Shadows */
     --shadow-soft: 0 4px 24px rgba(0, 0, 0, 0.4);
@@ -31,7 +34,7 @@
         0 8px 32px rgba(0, 0, 0, 0.5),
         0 2px 8px rgba(0, 0, 0, 0.3),
         inset 0 1px 0 rgba(255, 255, 255, 0.08);
-    --shadow-glow: 0 0 50px rgba(99, 102, 241, 0.2);
+    --shadow-glow: 0 0 50px rgba(100, 100, 120, 0.15);
     --shadow-inner: inset 0 2px 4px rgba(0, 0, 0, 0.2);
 
     /* Sizing */
@@ -40,35 +43,14 @@
     --radius-lg: 20px;
     --radius-xl: 24px;
 
-    /* Telegram theme variables */
+    /* Force dark theme in Telegram */
     --tg-theme-bg-color: #0a0a0f;
     --tg-theme-text-color: #ffffff;
-    --tg-theme-button-color: #6366f1;
+    --tg-theme-button-color: #3a3a4a;
     --tg-theme-button-text-color: #ffffff;
 }
 
-/* Light theme */
-@media (prefers-color-scheme: light) {
-    :root {
-        --bg-primary: #f0f0f5;
-        --bg-secondary: #ffffff;
-        --bg-glass: rgba(255, 255, 255, 0.8);
-        --bg-glass-hover: rgba(255, 255, 255, 0.9);
-        --bg-card: rgba(255, 255, 255, 0.85);
-
-        --text-primary: #1d1d1f;
-        --text-secondary: rgba(0, 0, 0, 0.7);
-        --text-muted: rgba(0, 0, 0, 0.5);
-
-        --border-glass: rgba(0, 0, 0, 0.08);
-
-        --shadow-soft: 0 4px 24px rgba(0, 0, 0, 0.08);
-        --shadow-deep:
-            0 8px 32px rgba(0, 0, 0, 0.12),
-            0 2px 8px rgba(0, 0, 0, 0.06),
-            inset 0 1px 0 rgba(255, 255, 255, 1);
-    }
-}
+/* Light theme DISABLED - always dark */
 
 /* ============================================
    Base Styles
@@ -460,8 +442,8 @@ body::before {
     justify-content: center;
     gap: 12px;
     padding: 16px 28px;
-    background: var(--accent-gradient);
-    border: none;
+    background: var(--btn-gradient);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: var(--radius-md);
     font-size: 1.1rem;
     font-weight: 700;
@@ -471,8 +453,8 @@ body::before {
     position: relative;
     overflow: hidden;
     box-shadow:
-        0 4px 16px rgba(99, 102, 241, 0.35),
-        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        0 4px 16px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 
 .main-btn::before {
@@ -495,9 +477,9 @@ body::before {
 
 .main-btn:hover {
     transform: translateY(-2px);
+    background: var(--btn-gradient-hover);
     box-shadow:
-        0 8px 28px rgba(99, 102, 241, 0.45),
-        0 0 50px rgba(139, 92, 246, 0.2),
+        0 8px 28px rgba(0, 0, 0, 0.5),
         inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
