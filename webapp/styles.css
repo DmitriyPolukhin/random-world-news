@@ -1,0 +1,560 @@
+/*
+ * Random World News - Telegram Mini App
+ * iOS-like Morphic Glass Design
+ */
+
+/* ============================================
+   CSS Variables & Theme
+   ============================================ */
+:root {
+    /* Colors */
+    --bg-primary: #0a0a0f;
+    --bg-secondary: #12121a;
+    --bg-glass: rgba(255, 255, 255, 0.06);
+    --bg-glass-hover: rgba(255, 255, 255, 0.1);
+    --bg-card: rgba(30, 30, 45, 0.7);
+
+    --text-primary: #ffffff;
+    --text-secondary: rgba(255, 255, 255, 0.75);
+    --text-muted: rgba(255, 255, 255, 0.5);
+
+    --accent-primary: #6366f1;
+    --accent-secondary: #8b5cf6;
+    --accent-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
+
+    --border-glass: rgba(255, 255, 255, 0.12);
+    --border-glow: rgba(139, 92, 246, 0.4);
+
+    /* Morphic Shadows */
+    --shadow-soft: 0 4px 24px rgba(0, 0, 0, 0.4);
+    --shadow-deep:
+        0 8px 32px rgba(0, 0, 0, 0.5),
+        0 2px 8px rgba(0, 0, 0, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    --shadow-glow: 0 0 50px rgba(99, 102, 241, 0.2);
+    --shadow-inner: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+
+    /* Sizing */
+    --radius-sm: 12px;
+    --radius-md: 16px;
+    --radius-lg: 20px;
+    --radius-xl: 24px;
+
+    /* Telegram theme variables */
+    --tg-theme-bg-color: #0a0a0f;
+    --tg-theme-text-color: #ffffff;
+    --tg-theme-button-color: #6366f1;
+    --tg-theme-button-text-color: #ffffff;
+}
+
+/* Light theme */
+@media (prefers-color-scheme: light) {
+    :root {
+        --bg-primary: #f0f0f5;
+        --bg-secondary: #ffffff;
+        --bg-glass: rgba(255, 255, 255, 0.8);
+        --bg-glass-hover: rgba(255, 255, 255, 0.9);
+        --bg-card: rgba(255, 255, 255, 0.85);
+
+        --text-primary: #1d1d1f;
+        --text-secondary: rgba(0, 0, 0, 0.7);
+        --text-muted: rgba(0, 0, 0, 0.5);
+
+        --border-glass: rgba(0, 0, 0, 0.08);
+
+        --shadow-soft: 0 4px 24px rgba(0, 0, 0, 0.08);
+        --shadow-deep:
+            0 8px 32px rgba(0, 0, 0, 0.12),
+            0 2px 8px rgba(0, 0, 0, 0.06),
+            inset 0 1px 0 rgba(255, 255, 255, 1);
+    }
+}
+
+/* ============================================
+   Base Styles
+   ============================================ */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html,
+body {
+    height: 100%;
+    overflow: hidden;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--tg-theme-bg-color, var(--bg-primary));
+    color: var(--tg-theme-text-color, var(--text-primary));
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Animated gradient background */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background:
+        radial-gradient(ellipse at 15% 15%, rgba(99, 102, 241, 0.2) 0%, transparent 45%),
+        radial-gradient(ellipse at 85% 85%, rgba(139, 92, 246, 0.15) 0%, transparent 45%),
+        radial-gradient(ellipse at 50% 50%, rgba(168, 85, 247, 0.08) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* ============================================
+   Glass & Morphic Effects
+   ============================================ */
+.glass-card {
+    background: var(--bg-glass);
+    backdrop-filter: blur(24px) saturate(200%);
+    -webkit-backdrop-filter: blur(24px) saturate(200%);
+    border: 1px solid var(--border-glass);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-soft);
+}
+
+/* Morphic card with depth */
+.morphic-card {
+    background: var(--bg-card);
+    backdrop-filter: blur(30px) saturate(180%);
+    -webkit-backdrop-filter: blur(30px) saturate(180%);
+    border: 1px solid var(--border-glass);
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-deep);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Top light reflection */
+.morphic-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg,
+            transparent 0%,
+            rgba(255, 255, 255, 0.3) 30%,
+            rgba(255, 255, 255, 0.3) 70%,
+            transparent 100%);
+}
+
+/* ============================================
+   App Layout
+   ============================================ */
+.app-container {
+    position: relative;
+    height: 100vh;
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    padding: 16px;
+    z-index: 1;
+    overflow: hidden;
+}
+
+/* ============================================
+   Header
+   ============================================ */
+.header {
+    flex-shrink: 0;
+    padding: 14px 20px;
+    margin-bottom: 16px;
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.stats {
+    display: flex;
+    gap: 12px;
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.stat-value {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+/* ============================================
+   Main Content
+   ============================================ */
+.content {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-bottom: 24px;
+    -webkit-overflow-scrolling: touch;
+}
+
+.content::-webkit-scrollbar {
+    width: 4px;
+}
+
+.content::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.content::-webkit-scrollbar-thumb {
+    background: var(--border-glass);
+    border-radius: 2px;
+}
+
+/* ============================================
+   Welcome State
+   ============================================ */
+.welcome-state {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100%;
+    gap: 20px;
+}
+
+.welcome-card {
+    text-align: center;
+    padding: 0;
+    width: 100%;
+}
+
+.welcome-card-content {
+    padding: 36px 24px 24px;
+}
+
+.welcome-emoji {
+    font-size: 4rem;
+    margin-bottom: 16px;
+    animation: float 3s ease-in-out infinite;
+    filter: drop-shadow(0 4px 12px rgba(99, 102, 241, 0.3));
+}
+
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+.welcome-card h2 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+    color: var(--text-secondary);
+}
+
+.welcome-card p {
+    color: var(--text-secondary);
+    font-size: 0.9375rem;
+}
+
+.welcome-hint {
+    font-size: 0.8125rem !important;
+    color: var(--text-muted) !important;
+    margin-top: 8px;
+}
+
+/* Welcome card button container */
+.welcome-card .main-btn-container {
+    margin-top: 0;
+    padding: 16px 24px 24px;
+    border-top: none;
+}
+
+/* ============================================
+   Loading State
+   ============================================ */
+.loading-state {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100%;
+}
+
+.loading-card {
+    text-align: center;
+    padding: 48px 24px;
+    width: 100%;
+}
+
+.globe-spinner {
+    font-size: 4rem;
+    animation: spin 2s linear infinite;
+    filter: drop-shadow(0 4px 12px rgba(99, 102, 241, 0.3));
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.loading-card p {
+    margin-top: 16px;
+    color: var(--text-secondary);
+}
+
+/* ============================================
+   News Card - Morphic Design
+   ============================================ */
+.news-card {
+    animation: slideUp 0.4s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* News image */
+.news-image-container {
+    margin: 20px 20px 16px;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    box-shadow: var(--shadow-inner);
+}
+
+.news-image {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    display: block;
+}
+
+/* News content */
+.news-content {
+    padding: 16px 24px;
+}
+
+.news-card>.news-content:first-child {
+    padding-top: 24px;
+}
+
+.news-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    line-height: 1.45;
+    margin-bottom: 14px;
+    color: var(--text-secondary);
+}
+
+.news-description {
+    font-size: 0.9375rem;
+    color: var(--text-secondary);
+    line-height: 1.7;
+}
+
+/* News metadata */
+.news-meta {
+    padding: 0 24px 16px;
+}
+
+.meta-row {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.8125rem;
+    color: var(--text-muted);
+}
+
+.meta-icon {
+    font-size: 0.875rem;
+}
+
+/* Action buttons row */
+.news-actions {
+    display: flex;
+    gap: 10px;
+    padding: 12px 20px;
+    border-top: 1px solid var(--border-glass);
+}
+
+.action-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 11px 16px;
+    background: var(--bg-glass);
+    border: 1px solid var(--border-glass);
+    border-radius: var(--radius-md);
+    color: var(--text-primary);
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.action-btn:hover {
+    background: var(--bg-glass-hover);
+    border-color: var(--border-glow);
+}
+
+.action-btn:active {
+    transform: scale(0.98);
+}
+
+/* ============================================
+   Main Button - Inside Card
+   ============================================ */
+.main-btn-container {
+    padding: 16px 20px 20px;
+    border-top: 1px solid var(--border-glass);
+}
+
+.main-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 16px 28px;
+    background: var(--accent-gradient);
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    box-shadow:
+        0 4px 16px rgba(99, 102, 241, 0.35),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.main-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg,
+            transparent,
+            rgba(255, 255, 255, 0.25),
+            transparent);
+    transition: left 0.5s ease;
+}
+
+.main-btn:hover::before {
+    left: 100%;
+}
+
+.main-btn:hover {
+    transform: translateY(-2px);
+    box-shadow:
+        0 8px 28px rgba(99, 102, 241, 0.45),
+        0 0 50px rgba(139, 92, 246, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.main-btn:active {
+    transform: translateY(0) scale(0.98);
+}
+
+.main-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.main-btn:disabled::before {
+    display: none;
+}
+
+.btn-emoji {
+    font-size: 1.2rem;
+    transition: transform 0.3s ease;
+}
+
+.main-btn:hover .btn-emoji {
+    transform: translateX(4px);
+}
+
+/* ============================================
+   Utility Classes
+   ============================================ */
+.hidden {
+    display: none !important;
+}
+
+/* ============================================
+   Responsive
+   ============================================ */
+@media (max-width: 380px) {
+    .app-container {
+        padding: 12px;
+    }
+
+    .welcome-card {
+        padding: 28px 20px;
+    }
+
+    .news-content {
+        padding: 12px 18px;
+    }
+
+    .news-title {
+        font-size: 1.1rem;
+    }
+}
+
+@media (min-width: 600px) {
+    .app-container {
+        max-width: 480px;
+        margin: 0 auto;
+    }
+}

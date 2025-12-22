@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Random World News</title>
+
+    <!-- Telegram Web App SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Header with stats -->
+        <header class="header morphic-card">
+            <div class="header-content">
+                <h1 class="logo" id="header-title">Новости мира</h1>
+                <div class="stats">
+                    <span class="stat-item">
+                        <span class="stat-icon">📰</span>
+                        <span class="stat-value" id="news-count">0</span>
+                    </span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main content area -->
+        <main class="content">
+            <!-- Initial state -->
+            <div class="welcome-state" id="welcome-state">
+                <div class="welcome-card morphic-card">
+                    <div class="welcome-card-content">
+                        <div class="welcome-emoji">🌍</div>
+                        <h2>Случайная новость</h2>
+                        <p>Нажми кнопку и получи новость из любой точки мира!</p>
+                        <p class="welcome-hint">Япония, Бразилия, Германия... кто знает откуда?</p>
+                    </div>
+
+                    <!-- Button inside welcome card -->
+                    <div class="main-btn-container">
+                        <button class="main-btn" id="fetch-btn">
+                            <span class="btn-text">Погнали!</span>
+                            <span class="btn-emoji">🚀</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Loading state -->
+            <div class="loading-state hidden" id="loading-state">
+                <div class="loading-card morphic-card">
+                    <div class="globe-spinner">🌍</div>
+                    <p>Ищем новость...</p>
+                </div>
+            </div>
+
+            <!-- News display -->
+            <article class="news-card morphic-card hidden" id="news-card">
+                <!-- News image -->
+                <div class="news-image-container hidden" id="news-image-container">
+                    <img class="news-image" id="news-image" src="" alt="News image">
+                </div>
+
+                <!-- News content -->
+                <div class="news-content">
+                    <h2 class="news-title" id="news-title">Заголовок новости</h2>
+                    <p class="news-description" id="news-description">
+                        Описание новости будет здесь...
+                    </p>
+                </div>
+
+                <!-- News metadata -->
+                <div class="news-meta">
+                    <div class="meta-row">
+                        <span class="meta-item">
+                            <span class="meta-icon">📰</span>
+                            <span id="news-source">Источник</span>
+                        </span>
+                        <span class="meta-item">
+                            <span class="meta-icon">🌐</span>
+                            <span id="news-language">Язык</span>
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Action buttons -->
+                <div class="news-actions">
+                    <a class="action-btn" id="read-more-btn" href="#" target="_blank">
+                        <span>📖</span> Читать
+                    </a>
+                    <button class="action-btn" id="share-btn">
+                        <span>📤</span> Поделиться
+                    </button>
+                </div>
+
+                <!-- Main button inside news card -->
+                <div class="main-btn-container">
+                    <button class="main-btn" id="fetch-btn-news">
+                        <span class="btn-text">Ещё новость!</span>
+                        <span class="btn-emoji">🎲</span>
+                    </button>
+                </div>
+            </article>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
