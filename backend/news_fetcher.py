@@ -120,8 +120,21 @@ class NewsFetcher:
                 print(f"✗ Error fetching from {api}: {e}")
                 continue
         
-        # Fallback на демо
-        print("⚠ All APIs failed, using demo")
+        # Если все API упали, пробуем RSS ещё 2 раза (разные страны/фиды)
+        print("⚠ All APIs failed, retrying RSS...")
+        rss_fetcher = get_rss_fetcher()
+        for attempt in range(2):
+            try:
+                result = await rss_fetcher.fetch_random_news()
+                if result:
+                    print(f"✓ RSS retry #{attempt+1} succeeded")
+                    return result
+            except Exception as e:
+                print(f"✗ RSS retry #{attempt+1} failed: {e}")
+                continue
+        
+        # Последний fallback на демо (без предупреждающего сообщения)
+        print("⚠ All sources exhausted, using cached demo")
         return await self._get_demo_news()
     
     async def _fetch_from_gnews(self) -> Optional[dict]:
@@ -304,54 +317,76 @@ class NewsFetcher:
             return None
     
     async def _get_demo_news(self) -> dict:
-        """Демо-новость когда нет API ключей."""
-        demo_news = [
+        """Юмористические сообщения когда все источники недоступны."""
+        fun_messages = [
             {
-                "title": "Добро пожаловать в Random World News!",
-                "description": "Это демо-режим. Чтобы получать реальные новости со всего мира, добавьте API ключи в файл .env. Получите бесплатные ключи на gnews.io (100 запросов/день) и worldnewsapi.com (100 запросов/день).",
-                "url": "https://gnews.io",
+                "title": "Хватит забивать голову новостями! 🧘",
+                "description": "Серверы решили, что вам пора отдохнуть. Выпейте чаю, погуляйте, позвоните маме. Мир подождёт — он никуда не денется. Возвращайтесь через пару минут!",
+                "url": "https://t.me/random_world_news_bot",
                 "image": "",
-                "source": "Random World News",
+                "source": "Вселенная",
                 "published_at": datetime.now().isoformat(),
-                "country": {"flag": "🇺🇸", "name": "США", "name_en": "United States"},
-                "language": "en",
-                "api_source": "demo"
+                "country": {"flag": "🌍", "name": "Планета Земля", "name_en": "Earth"},
+                "language": "ru",
+                "api_source": "zen"
             },
             {
-                "title": "日本の桜の季節が始まりました",
-                "description": "Демо: Так будет выглядеть японская новость. Заголовок и описание автоматически переводятся на русский язык через DeepL или Google Translate.",
-                "url": "https://example.com",
+                "title": "Новости закончились! (шутка) 📰",
+                "description": "На самом деле в мире происходит столько всего, что наши серверы просто не успевают. Дайте им секунду передохнуть и попробуйте снова. Они стараются!",
+                "url": "https://t.me/random_world_news_bot",
                 "image": "",
-                "source": "Tokyo News",
+                "source": "Усталый сервер",
                 "published_at": datetime.now().isoformat(),
-                "country": {"flag": "🇯🇵", "name": "Япония", "name_en": "Japan"},
-                "language": "ja",
-                "api_source": "demo"
+                "country": {"flag": "🤖", "name": "Интернет", "name_en": "Internet"},
+                "language": "ru",
+                "api_source": "zen"
             },
             {
-                "title": "Carnaval do Rio atrai milhões de turistas",
-                "description": "Демо: Это пример бразильской новости на португальском. Приложение поддерживает более 40 языков и 200 стран мира.",
-                "url": "https://example.com",
+                "title": "Сегодня в мире ничего не произошло 🦥",
+                "description": "Шучу! Просто все новостные ленты одновременно решили отдохнуть. Такое бывает раз в сто лет. Вы — свидетель истории! Попробуйте ещё раз.",
+                "url": "https://t.me/random_world_news_bot",
                 "image": "",
-                "source": "O Globo",
+                "source": "Ленивец News",
                 "published_at": datetime.now().isoformat(),
-                "country": {"flag": "🇧🇷", "name": "Бразилия", "name_en": "Brazil"},
-                "language": "pt",
-                "api_source": "demo"
+                "country": {"flag": "🦥", "name": "Страна лени", "name_en": "Lazy Land"},
+                "language": "ru",
+                "api_source": "zen"
             },
             {
-                "title": "Технологический прорыв в Германии",
-                "description": "Демо: Немецкие учёные разработали новый тип аккумуляторов. Это пример того, как выглядят новости из Европы в приложении.",
-                "url": "https://example.com",
+                "title": "Вы слишком быстро читаете! 🚀",
+                "description": "Наши источники не успевают за вами. Вы явно чемпион по скорочтению. Сделайте паузу, насладитесь моментом, и нажмите кнопку снова.",
+                "url": "https://t.me/random_world_news_bot",
                 "image": "",
-                "source": "Der Spiegel",
+                "source": "Книга рекордов",
                 "published_at": datetime.now().isoformat(),
-                "country": {"flag": "🇩🇪", "name": "Германия", "name_en": "Germany"},
-                "language": "de",
-                "api_source": "demo"
+                "country": {"flag": "🏆", "name": "Зал славы", "name_en": "Hall of Fame"},
+                "language": "ru",
+                "api_source": "zen"
+            },
+            {
+                "title": "Кофе-брейк для новостей ☕",
+                "description": "Даже новостям нужен перерыв! Они ушли попить кофе и скоро вернутся. А пока можете помедитировать или посмотреть в окно. Там тоже много интересного!",
+                "url": "https://t.me/random_world_news_bot",
+                "image": "",
+                "source": "Кофейня",
+                "published_at": datetime.now().isoformat(),
+                "country": {"flag": "☕", "name": "Перерыв", "name_en": "Coffee Break"},
+                "language": "ru",
+                "api_source": "zen"
+            },
+            {
+                "title": "Нейросети тоже устают 🤯",
+                "description": "Мы обработали слишком много новостей за сегодня и немного перегрелись. Дайте нам пару секунд остыть. Обещаем вернуться с чем-то интересным!",
+                "url": "https://t.me/random_world_news_bot",
+                "image": "",
+                "source": "ChatGPT Lite",
+                "published_at": datetime.now().isoformat(),
+                "country": {"flag": "🧠", "name": "Нейросеть", "name_en": "Neural Net"},
+                "language": "ru",
+                "api_source": "zen"
             }
         ]
-        return random.choice(demo_news)
+        return random.choice(fun_messages)
     
     async def close(self):
         """Закрыть HTTP клиент."""
