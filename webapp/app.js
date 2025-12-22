@@ -271,29 +271,31 @@ function shareNews() {
     if (!state.currentNews) return;
 
     const { news, metadata } = state.currentNews;
-    const shareText = `${metadata.country.flag} ${news.title}\n\n${news.description?.slice(0, 200)}...\n\n📰 ${news.source}`;
+    const shareText = `${metadata.country.flag} ${news.title}\n\n📰 Читать: ${news.url}`;
+    const botLink = 'https://t.me/random_world_news_bot';
 
-    // Try Telegram share first
-    if (tg?.shareToStory) {
-        // Telegram story sharing (if available)
-        tg.shareToStory(news.url);
+    // Try Telegram native share methods
+    if (tg) {
+        // Method 1: Open share dialog via Telegram link
+        const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(news.url)}&text=${encodeURIComponent(`${metadata.country.flag} ${news.title}\n\n📰 Источник: ${news.source}\n\n🎲 Попробуй сам: ${botLink}`)}`;
+
+        if (tg.openTelegramLink) {
+            tg.openTelegramLink(shareUrl);
+        } else if (tg.openLink) {
+            tg.openLink(shareUrl);
+        } else {
+            window.open(shareUrl, '_blank');
+        }
     } else if (navigator.share) {
-        // Web Share API
+        // Web Share API for regular browsers
         navigator.share({
             title: news.title,
             text: shareText,
             url: news.url
         }).catch(console.error);
-    } else if (tg) {
-        // Fallback: copy to clipboard in Telegram
-        navigator.clipboard.writeText(`${shareText}\n\n🔗 ${news.url}`)
-            .then(() => {
-                tg.showAlert('Скопировано в буфер обмена!');
-            })
-            .catch(console.error);
     } else {
-        // Regular web fallback
-        navigator.clipboard.writeText(`${shareText}\n\n🔗 ${news.url}`)
+        // Fallback: copy to clipboard
+        navigator.clipboard.writeText(`${shareText}`)
             .then(() => alert('Скопировано в буфер обмена!'))
             .catch(console.error);
     }
