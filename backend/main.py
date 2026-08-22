@@ -4,23 +4,25 @@ Random World News - FastAPI Backend
 """
 
 import os
-import json
+import logging
 from datetime import datetime
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import JSONResponse, RedirectResponse
 from dotenv import load_dotenv
 
-from news_fetcher import get_fetcher, NewsFetcher
+from news_fetcher import get_fetcher
 from translator import get_translator
 from country_data import get_language_name
 
 # Загрузка переменных окружения (из родительской директории)
 env_path = os.path.join(os.path.dirname(__file__), "..", ".env")
 load_dotenv(env_path)
+
+logger = logging.getLogger(__name__)
 
 
 @asynccontextmanager
@@ -45,8 +47,8 @@ app = FastAPI(
 # CORS для Telegram Mini App
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Telegram может открывать с разных доменов
-    allow_credentials=True,
+    allow_origins=["*"],
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -56,9 +58,9 @@ app.add_middleware(
 global_news_count = 0
 
 
-@app.get("/")
-async def root():
-    """Корневой эндпоинт."""
+@app.get("/api")
+async def api_info():
+    """API metadata."""
     return {
         "app": "Random World News",
         "version": "1.0.0",
@@ -146,27 +148,25 @@ async def get_random_news():
         
     except HTTPException:
         raise
-    except Exception as e:
-        print(f"Error in get_random_news: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+    except Exception:
+        logger.exception("Failed to build a random-news response")
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 
 # Статические файлы для webapp
 webapp_path = os.path.join(os.path.dirname(__file__), "..", "webapp")
 if os.path.exists(webapp_path):
-    # Serve webapp at /app path
     app.mount("/app", StaticFiles(directory=webapp_path, html=True), name="webapp")
-    
+
     @app.get("/")
     async def root_redirect():
         """Redirect root to webapp."""
-        from starlette.responses import RedirectResponse
         return RedirectResponse(url="/app/")
-    
+
     @app.get("/webapp")
-    async def serve_webapp():
-        """Serve the Mini App."""
-        return FileResponse(os.path.join(webapp_path, "index.html"))
+    async def legacy_webapp_redirect():
+        """Keep old bot links working while preserving relative assets."""
+        return RedirectResponse(url="/app/")
 
 
 if __name__ == "__main__":
@@ -178,4 +178,3 @@ if __name__ == "__main__":
     
     print(f"🌍 Starting Random World News on {host}:{port}")
     uvicorn.run("main:app", host=host, port=port, reload=debug)
-

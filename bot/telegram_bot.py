@@ -3,14 +3,14 @@ Random World News - Telegram Bot
 Бот для запуска Mini App и интеграции с Telegram.
 """
 
-import os
 import logging
 from telegram import Update, WebAppInfo, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, MessageHandler, ContextTypes, filters
-from dotenv import load_dotenv
 
-# Загрузка переменных окружения
-load_dotenv()
+try:
+    from .settings import BotConfigError, load_bot_settings
+except ImportError:
+    from settings import BotConfigError, load_bot_settings
 
 # Настройка логирования
 logging.basicConfig(
@@ -19,9 +19,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Конфигурация
-BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
-WEBAPP_URL = os.getenv("WEBAPP_URL", "https://your-domain.com/webapp")  # Замените на реальный URL
+WEBAPP_URL = ""
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -121,17 +119,22 @@ async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE) -> N
     logger.error(f"Exception while handling an update: {context.error}")
 
 
-def main() -> None:
+def main() -> int:
     """Запуск бота."""
-    if not BOT_TOKEN or BOT_TOKEN == "your_telegram_bot_token_here":
-        print("❌ Error: TELEGRAM_BOT_TOKEN not set in .env file!")
-        print("   Get your token from @BotFather in Telegram")
-        return
+    global WEBAPP_URL
+
+    try:
+        settings = load_bot_settings()
+    except BotConfigError as error:
+        logger.error("Configuration error: %s", error)
+        return 2
+
+    WEBAPP_URL = settings.webapp_url
     
     print("🤖 Starting Random World News Bot...")
     
     # Создание приложения
-    application = Application.builder().token(BOT_TOKEN).build()
+    application = Application.builder().token(settings.token).build()
     
     # Регистрация обработчиков
     application.add_handler(CommandHandler("start", start))
@@ -145,7 +148,8 @@ def main() -> None:
     # Запуск бота
     print("✅ Bot started! Press Ctrl+C to stop.")
     application.run_polling(allowed_updates=Update.ALL_TYPES)
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

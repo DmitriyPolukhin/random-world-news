@@ -25,44 +25,48 @@ cd /Users/dmitriypoluhin/ai-coding-framework/random-world-news
 ### 2. Установка зависимостей
 
 ```bash
-cd backend
 python -m venv venv
-source venv/bin/activate  # Linux/Mac
+source venv/bin/activate
 pip install -r requirements.txt
 ```
 
 ### 3. Настройка
 
-Скопируй `.env.example` в `.env` и заполни API ключи:
+Скопируй `.env.example` в `.env`:
 
 ```bash
-cp ../.env.example ../.env
+cp .env.example .env
 ```
 
-Получи бесплатные ключи:
-- **GNews**: https://gnews.io (100 req/day)
-- **WorldNewsAPI**: https://worldnewsapi.com (100 req/day)
-- **Telegram Bot**: @BotFather в Telegram
+Для локального WebApp ключи новостных API не нужны: приложение использует RSS. Необязательные GNews, NewsAPI, WorldNewsAPI и DeepL можно подключить позже.
+
+Для запуска Telegram-бота отдельно укажи:
+
+- `TELEGRAM_BOT_TOKEN` — новый токен от @BotFather;
+- `WEBAPP_URL` — `http://localhost:8000/app/` для браузерной проверки или публичный HTTPS URL для Telegram.
+
+Файл `.env` локальный и игнорируется Git. Никогда не добавляй его в коммиты.
 
 ### 4. Запуск
 
 **Backend (API сервер):**
 ```bash
-cd backend
-python main.py
-# Сервер запустится на http://localhost:8000
+source venv/bin/activate
+python backend/main.py
+# WebApp: http://localhost:8000/app/
+# API health: http://localhost:8000/api/health
 ```
 
 **Telegram Bot:**
 ```bash
-cd bot
-python telegram_bot.py
+source venv/bin/activate
+python -m bot.telegram_bot
 ```
 
-**Webapp (для разработки):**
+**Проверка:**
 ```bash
-# Открой webapp/index.html в браузере
-# Или используй Live Server в VS Code
+source venv/bin/activate
+python -m unittest discover -s tests -v
 ```
 
 ## 📁 Структура проекта
@@ -89,7 +93,9 @@ random-world-news/
 
 | Endpoint | Method | Описание |
 |----------|--------|----------|
-| `/` | GET | Информация об API |
+| `/` | GET | Переход в Mini App |
+| `/app/` | GET | Mini App |
+| `/api` | GET | Информация об API |
 | `/api/health` | GET | Health check |
 | `/api/random-news` | GET | Получить случайную новость |
 | `/api/stats` | GET | Глобальная статистика |
@@ -129,6 +135,13 @@ random-world-news/
 - Поддержка светлой и тёмной темы Telegram
 
 ## 🛠️ Деплой
+
+Перед публикацией обязательно:
+
+1. перевыпусти ранее опубликованные GNews, NewsAPI и WorldNewsAPI ключи;
+2. удали `.env` из истории Git и сделай force-push только после резервной копии;
+3. добавь новые ключи в секреты хостинга, а не в файлы репозитория;
+4. укажи публичный HTTPS `WEBAPP_URL` и новый `TELEGRAM_BOT_TOKEN`.
 
 ### Вариант 1: Railway (рекомендуется)
 
