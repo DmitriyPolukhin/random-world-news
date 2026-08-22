@@ -152,7 +152,6 @@ class NewsFetcher:
         
         url = "https://gnews.io/api/v4/top-headlines"
         params = {
-            "token": self.gnews_key,
             "country": country,
             "lang": language,
             "max": 10,
@@ -163,7 +162,11 @@ class NewsFetcher:
             params["topic"] = category
         
         try:
-            response = await self.client.get(url, params=params)
+            response = await self.client.get(
+                url,
+                params=params,
+                headers={"X-Api-Key": self.gnews_key},
+            )
             response.raise_for_status()
             data = response.json()
             
