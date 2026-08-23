@@ -209,14 +209,17 @@ class NewsFetcher:
         
         url = "https://newsapi.org/v2/top-headlines"
         params = {
-            "apiKey": self.newsapi_key,
             "country": country,
             "category": category,
             "pageSize": 10
         }
         
         try:
-            response = await self.client.get(url, params=params)
+            response = await self.client.get(
+                url,
+                params=params,
+                headers={"X-Api-Key": self.newsapi_key},
+            )
             response.raise_for_status()
             data = response.json()
             
