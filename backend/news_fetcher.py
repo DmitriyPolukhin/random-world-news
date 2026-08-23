@@ -279,14 +279,17 @@ class NewsFetcher:
         
         url = "https://api.worldnewsapi.com/search-news"
         params = {
-            "api-key": self.worldnews_key,
             "language": language,
             "number": 10,
             "offset": offset,
         }
         
         try:
-            response = await self.client.get(url, params=params)
+            response = await self.client.get(
+                url,
+                params=params,
+                headers={"x-api-key": self.worldnews_key},
+            )
             response.raise_for_status()
             data = response.json()
             

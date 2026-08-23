@@ -53,6 +53,44 @@ class NewsFetcherTests(unittest.IsolatedAsyncioTestCase):
         self.assertNotIn("token", captured_request.url.params)
         self.assertNotIn("apikey", captured_request.url.params)
 
+    async def test_worldnews_key_is_sent_in_header_not_query_string(self):
+        captured_request = None
+
+        def handler(request):
+            nonlocal captured_request
+            captured_request = request
+            return httpx.Response(
+                200,
+                json={
+                    "news": [
+                        {
+                            "title": "Test article",
+                            "text": "Test description",
+                            "url": "https://example.com/article",
+                            "image": "",
+                            "author": "Test author",
+                            "publish_date": "2026-08-23 00:00:00",
+                            "language": "en",
+                        }
+                    ]
+                },
+            )
+
+        fetcher = NewsFetcher()
+        await fetcher.client.aclose()
+        fetcher.client = httpx.AsyncClient(transport=httpx.MockTransport(handler))
+
+        try:
+            with patch.dict(os.environ, {"WORLDNEWS_API_KEY": "test-secret"}):
+                result = await fetcher._fetch_from_worldnews()
+        finally:
+            await fetcher.close()
+
+        self.assertIsNotNone(result)
+        self.assertIsNotNone(captured_request)
+        self.assertEqual(captured_request.headers.get("x-api-key"), "test-secret")
+        self.assertNotIn("api-key", captured_request.url.params)
+
 
 if __name__ == "__main__":
     unittest.main()
